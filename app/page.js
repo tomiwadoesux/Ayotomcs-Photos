@@ -6,7 +6,7 @@ import ExifReader from "exifreader";
 export const revalidate = 60; // Revalidate every 60 seconds
 
 async function getPhotos() {
-  const query = `*[_type == "photo"] | order(date desc) {
+  const query = `*[_type == "photo"] | order(coalesce(date, _createdAt) desc) {
     _id,
     title,
     location,

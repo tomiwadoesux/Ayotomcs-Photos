@@ -46,7 +46,7 @@ const HoverItem = ({ children, onClick, onMouseEnter, isActive }) => {
         style={{ transform: "translateY(100%)" }}
       />
       <div
-        className={`relative z-10 px-2 py-1.5 flex justify-between items-center mix-blend-exclusion`}
+        className={`relative z-10 px-2 py-1.5 flex justify-between items-center `}
       >
         {children}
       </div>

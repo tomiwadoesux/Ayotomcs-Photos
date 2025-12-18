@@ -4,22 +4,7 @@ export default function PhotoStage({ photo }) {
   if (!photo) return null;
 
   return (
-    <div id={photo.id} className="flex flex-col pt-18 md:pt-7 w-full h-full ">
-      {/* Top Divider */}
-      <div className="w-full pb-4 md:pb-12 px-6">
-        <svg
-          className="w-full h-px text-neutral-500"
-          viewBox="0 0 100 1"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0 0H100"
-            stroke="currentColor"
-            vectorEffect="non-scaling-stroke"
-          />
-        </svg>
-      </div>
-
+    <div id={photo.id} className="flex flex-col pt-4 md:pt-9 lg:pt-7 w-full h-full ">
       <div className="flex flex-col md:flex-row-reverse flex-1">
         {/* Left: Image */}
         <div className=" flex-2 lg:flex-1 w-full  md:pt-0 p-4 md:p-6 flex items-start justify-center">
@@ -140,6 +125,21 @@ export default function PhotoStage({ photo }) {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Bottom Divider */}
+      <div className="w-full pt-4 md:pt-4 px-6">
+        <svg
+          className="w-full h-px text-neutral-500"
+          viewBox="0 0 100 1"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0 0H100"
+            stroke="currentColor"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
       </div>
     </div>
   );

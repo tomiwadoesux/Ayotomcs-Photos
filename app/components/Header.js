@@ -59,10 +59,10 @@ const HoverButton = ({ children, onClick, className = "", ariaLabel }) => {
     >
       <div
         ref={bgRef}
-        className="absolute inset-0 bg-[#ededed]"
+        className="absolute inset-0 bg-foreground"
         style={{ transform: "translateY(100%)" }}
       />
-      <div className="relative z-10 mix-blend-exclusion flex items-center justify-center w-full h-full">
+      <div className="relative z-10 mix-blend-exclusion flex items-center justify-center w-full h-full text-[#ededed]">
         {children}
       </div>
     </button>
@@ -117,7 +117,7 @@ export default function Header({ currentView, onViewChange, stats, photos }) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full text-[#ededed] mix-blend-difference border-b border-neutral-800/50 bg-black/20 backdrop-blur-sm transition-colors duration-500">
+      <header className="sticky top-0 z-40 w-full text-foreground border-b border-neutral-800/50 bg-background transition-colors duration-500">
         <div className="grid grid-cols-3 lg:grid-cols-4 w-full h-16 font-mono text-xs uppercase tracking-wider">
           {/* 1. TITLE (Ayotomcs) - Link */}
           <div className="flex items-center justify-center lg:justify-start px-6 border-r border-neutral-800/50">
@@ -141,7 +141,7 @@ export default function Header({ currentView, onViewChange, stats, photos }) {
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2.5"
-                className="w-5 h-5 text-[#ededed]"
+                className="w-5 h-5"
               >
                 <path
                   strokeLinecap="round"
@@ -163,31 +163,23 @@ export default function Header({ currentView, onViewChange, stats, photos }) {
                 // Show Sun (Switch to Light)
                 <svg
                   viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  className="w-5 h-5 text-[#ededed]"
+                  fill="currentColor"
+                  className="w-5 h-5"
                 >
-                  <circle cx="12" cy="12" r="4" />
-                  <path d="M12 2v2" />
-                  <path d="M12 20v2" />
-                  <path d="m4.93 4.93 1.41 1.41" />
-                  <path d="m17.66 17.66 1.41 1.41" />
-                  <path d="M2 12h2" />
-                  <path d="M20 12h2" />
-                  <path d="m6.34 17.66-1.41 1.41" />
-                  <path d="m19.07 4.93-1.41 1.41" />
+                  <path d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.59ZM12 18.75a.75.75 0 0 1 .75.75V21.75a.75.75 0 0 1-1.5 0v-2.25a.75.75 0 0 1 .75-.75ZM5.106 17.834a.75.75 0 0 0 1.06 1.06l1.591-1.59a.75.75 0 1 0-1.061-1.061l-1.59 1.59ZM2.25 12a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H3a.75.75 0 0 1-.75-.75ZM6.166 5.106a.75.75 0 0 0-1.06 1.06l1.59 1.591a.75.75 0 1 0 1.061-1.06l-1.591-1.59Z" />
                 </svg>
               ) : (
                 // Show Moon (Switch to Dark)
                 <svg
                   viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  className="w-5 h-5 text-[#ededed]"
+                  fill="currentColor"
+                  className="w-5 h-5"
                 >
-                  <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                  <path
+                    fillRule="evenodd"
+                    d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 0 1 .818.162Z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               )}
             </HoverButton>
