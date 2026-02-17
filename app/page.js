@@ -42,8 +42,11 @@ export default async function Home() {
     // Count Tags
     if (photo.tags) {
       photo.tags.forEach((tag) => {
-        const label = tag.toUpperCase();
-        stats.tags[label] = (stats.tags[label] || 0) + 1;
+        const key = tag.toLowerCase().trim();
+        if (!stats.tags[key]) {
+          stats.tags[key] = { count: 0, label: tag };
+        }
+        stats.tags[key].count += 1;
       });
     }
     // Count Cameras
@@ -52,27 +55,27 @@ export default async function Home() {
       photo.image?.asset?.metadata?.exif?.Model ||
       "Unknown Camera";
     if (deviceName && deviceName !== "Unknown Camera") {
-      const device = deviceName.toUpperCase();
-      stats.cameras[device] = (stats.cameras[device] || 0) + 1;
+      const key = deviceName.toLowerCase().trim();
+      if (!stats.cameras[key]) {
+        stats.cameras[key] = { count: 0, label: deviceName };
+      }
+      stats.cameras[key].count += 1;
     }
     // Count Locations
     if (photo.location) {
-      const loc = photo.location.toUpperCase();
-      stats.locations[loc] = (stats.locations[loc] || 0) + 1;
+      const key = photo.location.toLowerCase().trim();
+      if (!stats.locations[key]) {
+        stats.locations[key] = { count: 0, label: photo.location };
+      }
+      stats.locations[key].count += 1;
     }
   });
 
   const formattedStats = {
     totalCount: stats.totalCount,
-    tags: Object.entries(stats.tags)
-      .map(([label, count]) => ({ label, count }))
-      .sort((a, b) => b.count - a.count),
-    cameras: Object.entries(stats.cameras)
-      .map(([label, count]) => ({ label, count }))
-      .sort((a, b) => b.count - a.count),
-    locations: Object.entries(stats.locations)
-      .map(([label, count]) => ({ label, count }))
-      .sort((a, b) => b.count - a.count),
+    tags: Object.values(stats.tags).sort((a, b) => b.count - a.count),
+    cameras: Object.values(stats.cameras).sort((a, b) => b.count - a.count),
+    locations: Object.values(stats.locations).sort((a, b) => b.count - a.count),
   };
 
   // 2. Format Photos for Feed (with heavy fallback for dates)
@@ -164,7 +167,7 @@ export default async function Home() {
             ISO: null,
           },
         };
-      })
+      }),
     )
   ).filter(Boolean);
 

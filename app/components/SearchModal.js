@@ -17,7 +17,7 @@ const HoverItem = ({ children, onClick, onMouseEnter, isActive }) => {
     gsap.fromTo(
       bgRef.current,
       { y: isEnterFromTop ? "-100%" : "100%" },
-      { y: "0%", duration: 0.25, ease: "power3.out" }
+      { y: "0%", duration: 0.25, ease: "power3.out" },
     );
   };
 
@@ -72,7 +72,7 @@ export default function SearchModal({ onClose, stats, photos = [] }) {
       tags: stats.tags?.filter((t) => t.label.toLowerCase().includes(q)),
       cameras: stats.cameras?.filter((c) => c.label.toLowerCase().includes(q)),
       locations: stats.locations?.filter((l) =>
-        l.label.toLowerCase().includes(q)
+        l.label.toLowerCase().includes(q),
       ),
     };
   }, [stats, query]);
@@ -82,18 +82,20 @@ export default function SearchModal({ onClose, stats, photos = [] }) {
     let matches = [];
 
     if (activeItem) {
-      const label = activeItem.label.toUpperCase();
+      const label = activeItem.label;
+      const lowerLabel = label.toLowerCase();
+
       if (activeItem.type === "tag") {
         matches = photos.filter((p) =>
-          p.tags?.some((t) => t.toUpperCase() === label)
+          p.tags?.some((t) => t.toLowerCase() === lowerLabel),
         );
       } else if (activeItem.type === "camera") {
         matches = photos.filter(
-          (p) => p.device && p.device.toUpperCase() === label
+          (p) => p.device && p.device.toLowerCase() === lowerLabel,
         );
       } else if (activeItem.type === "location") {
         matches = photos.filter(
-          (p) => p.location && p.location.toUpperCase() === label
+          (p) => p.location && p.location.toLowerCase() === lowerLabel,
         );
       }
     } else if (query) {
@@ -152,7 +154,7 @@ export default function SearchModal({ onClose, stats, photos = [] }) {
             <input
               type="text"
               placeholder="Search..."
-              className="w-full bg-transparent outline-none placeholder:text-neutral-500 text-foreground"
+              className="w-full bg-transparent outline-none placeholder:text-neutral-500 text-foreground text-base"
               autoFocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}
