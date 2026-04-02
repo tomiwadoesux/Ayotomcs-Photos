@@ -9,6 +9,7 @@ async function getPhotos() {
   const query = `*[_type == "photo"] | order(coalesce(date, _createdAt) desc) {
     _id,
     title,
+    slug,
     location,
     date,
     device,
@@ -146,6 +147,7 @@ export default async function Home() {
         const dimensions = rawPhoto.image?.asset?.metadata?.dimensions;
         return {
           id: rawPhoto._id,
+          slug: rawPhoto.slug?.current || rawPhoto._id,
           src: urlFor(rawPhoto.image).width(2000).auto("format").url(),
           title: rawPhoto.title,
           location: rawPhoto.location,

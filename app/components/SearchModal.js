@@ -276,7 +276,7 @@ export default function SearchModal({ onClose, stats, photos = [] }) {
                   {displayPhotos.map((photo) => (
                     <div
                       key={photo.id}
-                      onClick={() => handlePhotoClick(photo.id)}
+                      onClick={() => handlePhotoClick(photo.slug)}
                       className="aspect-square bg-neutral-900 relative group overflow-hidden cursor-pointer rounded-sm hover:outline hover:outline-2 hover:outline-[#4447a9] transition-all"
                     >
                       <Image
