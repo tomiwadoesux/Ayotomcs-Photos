@@ -66,7 +66,7 @@ export default function PhotoStage({ photo }) {
           </div>
 
           {/* Right: Metadata */}
-          <div className="flex-1 w-full p-6 flex flex-col justify-end gap-8 text-foreground font-mono text-sm uppercase tracking-wide">
+          <div className="flex-1 w-full p-6 flex flex-col justify-start gap-8 text-foreground font-mono text-sm uppercase tracking-wide md:sticky md:top-8 md:self-start">
             {/* Metadata Top Divider */}
             <div className="w-full pb-">
               <svg
