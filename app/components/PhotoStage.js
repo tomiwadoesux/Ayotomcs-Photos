@@ -24,7 +24,7 @@ export default function PhotoStage({ photo }) {
   };
 
   const handleCopyLink = async () => {
-    const url = `${window.location.origin}/#${photo.slug}`;
+    const url = `${window.location.origin}/p/${photo.slug}`;
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
