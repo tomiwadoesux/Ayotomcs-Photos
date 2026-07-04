@@ -15,18 +15,30 @@ function toIso(rawDate) {
   return isNaN(d.getTime()) ? null : d.toISOString();
 }
 
+// Pick a random quotable lyric line, skipping filler ("Yeah", "Mmm", ad-libs)
+function pickLyricQuote(lines) {
+  if (!lines || lines.length === 0) return null;
+  const quotable = lines.filter(
+    (line) => line.length >= 12 && !/^[(\[]/.test(line)
+  );
+  const pool = quotable.length > 0 ? quotable : lines;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
 export default function ListeningTo({ rawDate, song, utcTime }) {
   const [track, setTrack] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
 
+    const withQuote = (t) => ({ ...t, lyricQuote: pickLyricQuote(t.lyricsSnippet) });
+
     // A manually tagged song wins over the automatic time lookup
     if (song) {
       fetch(`${MUSIC_API_BASE}/api/spotify/track?q=${encodeURIComponent(song)}`)
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
-          if (!cancelled && data?.title) setTrack(data);
+          if (!cancelled && data?.title) setTrack(withQuote(data));
         })
         .catch(() => {});
       return () => {
@@ -45,7 +57,7 @@ export default function ListeningTo({ rawDate, song, utcTime }) {
       .then((data) => {
         if (cancelled || !data?.closest) return;
         if (data.closest.diffMinutes > MAX_DIFF_MINUTES) return;
-        setTrack(data.closest);
+        setTrack(withQuote(data.closest));
       })
       .catch(() => {});
 
@@ -99,9 +111,9 @@ export default function ListeningTo({ rawDate, song, utcTime }) {
         </span>
       </a>
 
-      {track.lyricsSnippet && track.lyricsSnippet.length > 0 && (
+      {track.lyricQuote && (
         <p className="text-xs text-foreground/50 normal-case italic leading-relaxed">
-          &ldquo;{track.lyricsSnippet[0]}&rdquo;
+          &ldquo;{track.lyricQuote}&rdquo;
         </p>
       )}
     </div>
