@@ -112,7 +112,11 @@ export default function PhotoStage({ photo }) {
                 </div>
 
                 {/* What was playing when this photo was taken */}
-                <ListeningTo rawDate={photo.rawDate} song={photo.song} />
+                <ListeningTo
+                  utcTime={photo.musicTime}
+                  rawDate={photo.rawDate}
+                  song={photo.song}
+                />
               </div>
 
               {/* Right Column */}

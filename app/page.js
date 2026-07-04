@@ -5,6 +5,43 @@ import ExifReader from "exifreader";
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
+// Timezone the camera clock is assumed to be in when the photo has no
+// explicit EXIF offset. Used only for the music lookup, not for display.
+const PHOTO_TZ = process.env.NEXT_PUBLIC_PHOTO_TZ || "America/New_York";
+
+// EXIF datetimes are the camera's wall clock with no timezone (Sanity fakes a
+// trailing Z). Convert a wall-clock time to the real UTC instant so the
+// what-was-playing lookup lines up with the Spotify play log.
+function utcFromWallTime(wallClock, explicitOffset, timeZone) {
+  try {
+    const wallIso = String(wallClock).replace(
+      /(\.\d+)?(Z|[+-]\d{2}:?\d{2})$/,
+      "",
+    );
+    if (explicitOffset) {
+      const d = new Date(`${wallIso}${explicitOffset}`);
+      return isNaN(d) ? null : d.toISOString();
+    }
+    const wall = new Date(`${wallIso}Z`);
+    if (isNaN(wall)) return null;
+    // Two passes converge on the UTC instant whose wall time in `timeZone`
+    // matches, handling DST correctly for the photo's own date
+    let utc = wall;
+    for (let i = 0; i < 2; i++) {
+      const utcRender = new Date(
+        utc.toLocaleString("en-US", { timeZone: "UTC" }),
+      );
+      const tzRender = new Date(utc.toLocaleString("en-US", { timeZone }));
+      utc = new Date(
+        wall.getTime() + (utcRender.getTime() - tzRender.getTime()),
+      );
+    }
+    return utc.toISOString();
+  } catch {
+    return null;
+  }
+}
+
 async function getPhotos() {
   const query = `*[_type == "photo"] | order(coalesce(date, _createdAt) desc) {
     _id,
@@ -89,7 +126,11 @@ export default async function Home() {
 
         let formattedDate = "";
         let rawDate = rawPhoto.date;
+        let exifOffset = null; // e.g. "-04:00" when the camera recorded it
         const sanityExif = rawPhoto.image?.asset?.metadata?.exif;
+        if (sanityExif?.OffsetTimeOriginal) {
+          exifOffset = sanityExif.OffsetTimeOriginal;
+        }
 
         // 1. Try Sanity EXIF
         if (!rawDate && sanityExif) {
@@ -117,6 +158,10 @@ export default async function Home() {
             if (tagDate) {
               const [d, t] = tagDate.split(" ");
               rawDate = `${d.replace(/:/g, "-")}T${t}`;
+            }
+
+            if (!exifOffset && tags["OffsetTimeOriginal"]?.description) {
+              exifOffset = tags["OffsetTimeOriginal"].description;
             }
 
             if (
@@ -161,6 +206,13 @@ export default async function Home() {
           song: rawPhoto.song,
           date: formattedDate,
           rawDate: rawDate,
+          // True UTC instant for the music lookup. A manually set Studio date
+          // is already real UTC; EXIF wall-clock times need conversion.
+          musicTime: rawPhoto.date
+            ? new Date(rawPhoto.date).toISOString()
+            : rawDate
+              ? utcFromWallTime(rawDate, exifOffset, PHOTO_TZ)
+              : null,
           width: dimensions?.width,
           height: dimensions?.height,
           aspectRatio: dimensions?.aspectRatio,

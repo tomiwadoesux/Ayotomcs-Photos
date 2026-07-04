@@ -15,7 +15,7 @@ function toIso(rawDate) {
   return isNaN(d.getTime()) ? null : d.toISOString();
 }
 
-export default function ListeningTo({ rawDate, song }) {
+export default function ListeningTo({ rawDate, song, utcTime }) {
   const [track, setTrack] = useState(null);
 
   useEffect(() => {
@@ -34,7 +34,8 @@ export default function ListeningTo({ rawDate, song }) {
       };
     }
 
-    const iso = toIso(rawDate);
+    // Server-computed true UTC wins; toIso is only a legacy fallback
+    const iso = utcTime || toIso(rawDate);
     if (!iso) return;
 
     fetch(
@@ -51,7 +52,7 @@ export default function ListeningTo({ rawDate, song }) {
     return () => {
       cancelled = true;
     };
-  }, [rawDate, song]);
+  }, [rawDate, song, utcTime]);
 
   if (!track) return null;
 
