@@ -190,7 +190,7 @@ export default function PhotoStage({ photo }) {
                 )}
 
                 {/* What was playing when this photo was taken */}
-                <ListeningTo rawDate={photo.rawDate} />
+                <ListeningTo rawDate={photo.rawDate} song={photo.song} />
               </div>
             </div>
           </div>

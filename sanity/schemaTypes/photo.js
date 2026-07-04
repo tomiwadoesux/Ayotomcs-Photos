@@ -56,6 +56,13 @@ export default defineType({
       title: "Date Taken",
       type: "datetime",
     }),
+    defineField({
+      name: "song",
+      title: "Song (Manual)",
+      type: "string",
+      description:
+        "Optional, e.g. 'On Fye The Simps'. Sets the track shown on this photo's card instead of the automatic what-was-playing lookup. Cover art and lyrics are fetched automatically.",
+    }),
 
     // EXIF Overrides (Optional - if we want to manually set them instead of extracting)
     defineField({

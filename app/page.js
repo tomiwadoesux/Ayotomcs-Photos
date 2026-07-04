@@ -14,6 +14,7 @@ async function getPhotos() {
     date,
     device,
     tags,
+    song,
     image {
       asset-> {
         _id,
@@ -157,6 +158,7 @@ export default async function Home() {
             sanityExif?.Model ||
             "Unknown Camera",
           tags: rawPhoto.tags,
+          song: rawPhoto.song,
           date: formattedDate,
           rawDate: rawDate,
           width: dimensions?.width,

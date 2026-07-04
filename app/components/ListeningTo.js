@@ -15,14 +15,28 @@ function toIso(rawDate) {
   return isNaN(d.getTime()) ? null : d.toISOString();
 }
 
-export default function ListeningTo({ rawDate }) {
+export default function ListeningTo({ rawDate, song }) {
   const [track, setTrack] = useState(null);
 
   useEffect(() => {
+    let cancelled = false;
+
+    // A manually tagged song wins over the automatic time lookup
+    if (song) {
+      fetch(`${MUSIC_API_BASE}/api/spotify/track?q=${encodeURIComponent(song)}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!cancelled && data?.title) setTrack(data);
+        })
+        .catch(() => {});
+      return () => {
+        cancelled = true;
+      };
+    }
+
     const iso = toIso(rawDate);
     if (!iso) return;
 
-    let cancelled = false;
     fetch(
       `${MUSIC_API_BASE}/api/spotify/at?time=${encodeURIComponent(iso)}`
     )
@@ -37,7 +51,7 @@ export default function ListeningTo({ rawDate }) {
     return () => {
       cancelled = true;
     };
-  }, [rawDate]);
+  }, [rawDate, song]);
 
   if (!track) return null;
 
