@@ -71,7 +71,7 @@ export default function ListeningTo({ rawDate, song }) {
           <circle cx="6" cy="18" r="3" />
           <circle cx="18" cy="16" r="3" />
         </svg>
-        <span>LISTENING TO</span>
+        <span>WAS LISTENING TO</span>
       </p>
 
       <a
