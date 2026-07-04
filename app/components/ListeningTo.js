@@ -60,20 +60,16 @@ export default function ListeningTo({ rawDate, song }) {
       <p className="text-xs text-foreground/40 flex items-center gap-1.5">
         <svg
           viewBox="0 0 24 24"
-          fill="currentColor"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
           className="w-3.5 h-3.5"
         >
-          <path d="M9 18V5l12-2v13" strokeWidth="0" />
+          <path d="M9 18V5l12-2v13" />
           <circle cx="6" cy="18" r="3" />
           <circle cx="18" cy="16" r="3" />
-          <path
-            d="M9 18V5l12-2v13"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
         </svg>
         <span>LISTENING TO</span>
       </p>
@@ -88,7 +84,7 @@ export default function ListeningTo({ rawDate, song }) {
           <img
             src={track.albumArtUrl}
             alt={track.album || track.title}
-            className="w-10 h-10 rounded-sm object-cover flex-shrink-0 grayscale group-hover/track:grayscale-0 transition-all duration-300"
+            className="w-10 h-10 rounded-sm object-cover flex-shrink-0"
             loading="lazy"
           />
         )}

@@ -111,6 +111,42 @@ export default function PhotoStage({ photo }) {
                   </button>
                 </div>
 
+                {/* What was playing when this photo was taken */}
+                <ListeningTo rawDate={photo.rawDate} song={photo.song} />
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-5 text-foreground/70">
+                {photo.exif && (
+                  <div className="space-y-1">
+                    <p className="space-x-2">
+                      <span className="text-foreground">
+                        {/* Try automatic FocalLength (e.g. 5.10) or manual, append mm */}
+                        {photo.exif.FocalLength
+                          ? `${Math.round(photo.exif.FocalLength)}mm`
+                          : photo.exif.focalLength || "--"}
+                      </span>{" "}
+                      {photo.exif.FocalLengthIn35mmFormat && (
+                        <span className="line-through decoration-neutral-600">
+                          {photo.exif.FocalLengthIn35mmFormat}mm
+                        </span>
+                      )}
+                    </p>
+                    <p>
+                      {photo.exif.FNumber
+                        ? `f/${photo.exif.FNumber}`
+                        : photo.exif.fStop || "--"}
+                    </p>
+                    <p>
+                      {photo.exif.ExposureTime
+                        ? `1/${Math.round(1 / photo.exif.ExposureTime)}s`
+                        : photo.exif.shutterSpeed || "--"}
+                    </p>
+                    <p>ISO {photo.exif.ISO || photo.exif.iso || "--"}</p>
+                    <p>0ev</p>
+                  </div>
+                )}
+
                 <div className="space-y-2">
                   {/* Camera / Device */}
                   <div className="flex items-center gap-2 text-foreground/70">
@@ -140,57 +176,23 @@ export default function PhotoStage({ photo }) {
                     <span>{photo.device}</span>
                   </div>
 
-                  {/* Tags */}
-                  {photo.tags && photo.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 pt-2">
-                      {photo.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-xs text-foreground/60 border border-foreground/20 px-1.5 py-0.5 rounded-sm"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  {/* Date under the camera */}
+                  {photo.date && <p>{photo.date}</p>}
                 </div>
-              </div>
 
-              {/* Right Column */}
-              <div className="space-y-6 text-foreground/70">
-                {photo.exif && (
-                  <div className="space-y-1">
-                    <p className="space-x-2">
-                      <span className="text-foreground">
-                        {/* Try automatic FocalLength (e.g. 5.10) or manual, append mm */}
-                        {photo.exif.FocalLength
-                          ? `${Math.round(photo.exif.FocalLength)}mm`
-                          : photo.exif.focalLength || "--"}
-                      </span>{" "}
-                      {photo.exif.FocalLengthIn35mmFormat && (
-                        <span className="line-through decoration-neutral-600">
-                          {photo.exif.FocalLengthIn35mmFormat}mm
-                        </span>
-                      )}
-                    </p>
-                    <p>
-                      {photo.exif.FNumber
-                        ? `f/${photo.exif.FNumber}`
-                        : photo.exif.fStop || "--"}
-                    </p>
-                    <p>
-                      {photo.exif.ExposureTime
-                        ? `1/${Math.round(1 / photo.exif.ExposureTime)}s`
-                        : photo.exif.shutterSpeed || "--"}
-                    </p>
-                    <p>ISO {photo.exif.ISO || photo.exif.iso || "--"}</p>
-                    <p>0ev</p>
-                    <p className="pt-5">{photo.date}</p>
+                {/* Tags under everything */}
+                {photo.tags && photo.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {photo.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="text-xs text-foreground/60 border border-foreground/20 px-1.5 py-0.5 rounded-sm"
+                      >
+                        {tag}
+                      </span>
+                    ))}
                   </div>
                 )}
-
-                {/* What was playing when this photo was taken */}
-                <ListeningTo rawDate={photo.rawDate} song={photo.song} />
               </div>
             </div>
           </div>
