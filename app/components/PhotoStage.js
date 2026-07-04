@@ -2,6 +2,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import PhotoLightbox from "./PhotoLightbox";
+import ListeningTo from "./ListeningTo";
 
 export default function PhotoStage({ photo }) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -187,6 +188,9 @@ export default function PhotoStage({ photo }) {
                     <p className="pt-5">{photo.date}</p>
                   </div>
                 )}
+
+                {/* What was playing when this photo was taken */}
+                <ListeningTo rawDate={photo.rawDate} />
               </div>
             </div>
           </div>
