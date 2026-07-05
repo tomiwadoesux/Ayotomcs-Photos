@@ -57,11 +57,23 @@ export default defineType({
       type: "datetime",
     }),
     defineField({
+      name: "showMusic",
+      title: "Show the music I was listening to?",
+      type: "boolean",
+      initialValue: true,
+      description:
+        "Turn off to hide the 'was listening to' block on this photo's card.",
+      options: {
+        layout: "switch",
+      },
+    }),
+    defineField({
       name: "song",
       title: "Song (Manual)",
       type: "string",
       description:
         "Optional, e.g. 'On Fye The Simps'. Sets the track shown on this photo's card instead of the automatic what-was-playing lookup. Cover art and lyrics are fetched automatically.",
+      hidden: ({ parent }) => parent?.showMusic === false,
     }),
 
     // EXIF Overrides (Optional - if we want to manually set them instead of extracting)

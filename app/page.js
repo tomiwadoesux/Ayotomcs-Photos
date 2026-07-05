@@ -52,6 +52,7 @@ async function getPhotos() {
     device,
     tags,
     song,
+    showMusic,
     image {
       asset-> {
         _id,
@@ -204,6 +205,8 @@ export default async function Home() {
             "Unknown Camera",
           tags: rawPhoto.tags,
           song: rawPhoto.song,
+          // Default on: only an explicit false hides the music block
+          showMusic: rawPhoto.showMusic !== false,
           date: formattedDate,
           rawDate: rawDate,
           // True UTC instant for the music lookup. A manually set Studio date

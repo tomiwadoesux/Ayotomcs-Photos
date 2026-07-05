@@ -84,7 +84,7 @@ export default function PhotoStage({ photo }) {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Left Column */}
-              <div className="space-y-6">
+              <div className="flex flex-col h-full">
                 <div className="space-y-1">
                   <h2 className="font-bold text-lg">{photo.title}</h2>
                   <p className="text-foreground/70">{photo.location}</p>
@@ -111,12 +111,17 @@ export default function PhotoStage({ photo }) {
                   </button>
                 </div>
 
-                {/* What was playing when this photo was taken */}
-                <ListeningTo
-                  utcTime={photo.musicTime}
-                  rawDate={photo.rawDate}
-                  song={photo.song}
-                />
+                {/* What was playing when this photo was taken —
+                    pinned to the bottom so it aligns with the right column */}
+                {photo.showMusic && (
+                  <div className="mt-auto pt-8">
+                    <ListeningTo
+                      utcTime={photo.musicTime}
+                      rawDate={photo.rawDate}
+                      song={photo.song}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Right Column */}
