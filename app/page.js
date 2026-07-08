@@ -209,10 +209,18 @@ export default async function Home() {
           }
         }
 
-        // 2. Deep Fallback: ExifReader
+        // 2. Deep Fallback: ExifReader — only when neither the Studio date nor
+        // Sanity's own EXIF metadata gave us a date. EXIF sits at the very start
+        // of the file, so fetch just the first chunk with a Range request
+        // (cached) instead of downloading the full-resolution original. If the
+        // CDN ignores Range it's no worse than before; if EXIF happens to sit
+        // past the chunk, this stays null and we fall back to the upload time.
         if (!rawDate && asset.url) {
           try {
-            const res = await fetch(asset.url);
+            const res = await fetch(asset.url, {
+              headers: { Range: "bytes=0-262143" }, // first 256 KB
+              next: { revalidate: 86400 },
+            });
             const arrayBuffer = await res.arrayBuffer();
             const tags = ExifReader.load(arrayBuffer);
 
