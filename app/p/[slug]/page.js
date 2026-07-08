@@ -1,5 +1,5 @@
 import { client, urlFor } from "@/sanity/lib/client";
-import { redirect } from "next/navigation";
+import PhotoRedirect from "./PhotoRedirect";
 
 export const revalidate = 60;
 
@@ -72,5 +72,44 @@ export async function generateMetadata({ params }) {
 
 export default async function PhotoPage({ params }) {
   const { slug } = await params;
-  redirect(`/#${slug}`);
+  const photo = await getPhoto(slug);
+
+  // Full-size image for the brief moment before a real visitor is redirected,
+  // and for any crawler that scrapes the page's images directly.
+  const imageUrl = photo?.image
+    ? urlFor(photo.image).width(1600).auto("format").url()
+    : null;
+
+  // IMPORTANT: don't server-redirect here.
+  //
+  // A server-side redirect() returns an HTTP 307 with no HTML body, so the
+  // per-photo Open Graph tags built in generateMetadata never reach social
+  // crawlers (Slack, iMessage, X/Twitter, WhatsApp, Facebook, ...). They'd
+  // follow the redirect to "/" and read the generic site preview instead.
+  //
+  // Rendering real HTML lets crawlers read this page's photo-specific OG tags,
+  // while PhotoRedirect (client-side, JS only) sends real visitors to the
+  // gallery scrolled to this photo. Crawlers don't run JS, so they stay put.
+  return (
+    <main
+      style={{
+        margin: 0,
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#0a0a0a",
+      }}
+    >
+      {imageUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={imageUrl}
+          alt={photo.title || "Photo"}
+          style={{ maxWidth: "100%", maxHeight: "100vh", objectFit: "contain" }}
+        />
+      )}
+      <PhotoRedirect slug={slug} />
+    </main>
+  );
 }
