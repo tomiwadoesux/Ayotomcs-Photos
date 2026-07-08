@@ -113,13 +113,9 @@ export default function PhotoStage({ photo }) {
 
                 {/* What was playing when this photo was taken —
                     pinned to the bottom so it aligns with the right column */}
-                {photo.showMusic && (
+                {photo.showMusic && photo.track && (
                   <div className="mt-auto pt-8">
-                    <ListeningTo
-                      utcTime={photo.musicTime}
-                      rawDate={photo.rawDate}
-                      song={photo.song}
-                    />
+                    <ListeningTo track={photo.track} />
                   </div>
                 )}
               </div>

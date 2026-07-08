@@ -9,6 +9,68 @@ export const revalidate = 60; // Revalidate every 60 seconds
 // explicit EXIF offset. Used only for the music lookup, not for display.
 const PHOTO_TZ = process.env.NEXT_PUBLIC_PHOTO_TZ || "America/New_York";
 
+// Where the Spotify/lyrics API lives.
+const MUSIC_API_BASE =
+  process.env.NEXT_PUBLIC_MUSIC_API_BASE || "https://ayotomcs.me";
+// Only attach a track if it was played within this window of the photo time.
+const MAX_DIFF_MINUTES = 180;
+
+// Pick a quotable lyric line, skipping filler ("Yeah", "Mmm", ad-libs).
+function pickLyricQuote(lines) {
+  if (!lines || lines.length === 0) return null;
+  const quotable = lines.filter(
+    (line) => line.length >= 12 && !/^[([]/.test(line),
+  );
+  const pool = quotable.length > 0 ? quotable : lines;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+// Resolve "what was playing" on the SERVER so it's fetched once per
+// revalidation window and shared across all visitors — instead of every
+// browser firing one request per photo on every page load. A photo's music is
+// historical and immutable, so it can be cached well past the page's own
+// revalidate window.
+async function resolveTrack({ song, musicTime }) {
+  const fetchJson = async (url) => {
+    try {
+      const res = await fetch(url, { next: { revalidate: 86400 } });
+      return res.ok ? await res.json() : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const withQuote = (t) =>
+    t ? { ...t, lyricQuote: pickLyricQuote(t.lyricsSnippet) } : null;
+
+  // A manually tagged song wins over the automatic time lookup.
+  if (song) {
+    const data = await fetchJson(
+      `${MUSIC_API_BASE}/api/spotify/track?q=${encodeURIComponent(song)}`,
+    );
+    return withQuote(data?.title ? data : null);
+  }
+
+  if (musicTime) {
+    const data = await fetchJson(
+      `${MUSIC_API_BASE}/api/spotify/at?time=${encodeURIComponent(musicTime)}`,
+    );
+    const c = data?.closest;
+    return withQuote(c && c.diffMinutes <= MAX_DIFF_MINUTES ? c : null);
+  }
+
+  return null;
+}
+
+// Best-effort real timestamp (ms) for a value that may be a zoned ISO string,
+// a bare wall-clock string, or missing. Used to sort the feed by taken-date.
+function toMs(value) {
+  if (!value) return null;
+  const hasZone = /Z$|[+-]\d{2}:?\d{2}$/.test(value);
+  const d = new Date(hasZone ? value : `${value}Z`);
+  return isNaN(d.getTime()) ? null : d.getTime();
+}
+
 // EXIF datetimes are the camera's wall clock with no timezone (Sanity fakes a
 // trailing Z). Convert a wall-clock time to the real UTC instant so the
 // what-was-playing lookup lines up with the Spotify play log.
@@ -45,6 +107,7 @@ function utcFromWallTime(wallClock, explicitOffset, timeZone) {
 async function getPhotos() {
   const query = `*[_type == "photo"] | order(coalesce(date, _createdAt) desc) {
     _id,
+    _createdAt,
     title,
     slug,
     location,
@@ -192,6 +255,29 @@ export default async function Home() {
         }
 
         const dimensions = rawPhoto.image?.asset?.metadata?.dimensions;
+
+        // Default on: only an explicit false hides the music block
+        const showMusic = rawPhoto.showMusic !== false;
+
+        // True UTC instant for the music lookup. A manually set Studio date
+        // is already real UTC; EXIF wall-clock times need conversion.
+        const musicTime = rawPhoto.date
+          ? new Date(rawPhoto.date).toISOString()
+          : rawDate
+            ? utcFromWallTime(rawDate, exifOffset, PHOTO_TZ)
+            : null;
+
+        // Resolve the track on the server (cached) so the browser doesn't have
+        // to fetch it on every load.
+        const track = showMusic
+          ? await resolveTrack({ song: rawPhoto.song, musicTime })
+          : null;
+
+        // Sort by when the photo was actually TAKEN (not when it was uploaded),
+        // so posting an old photo drops it into its correct chronological spot.
+        const sortMs =
+          toMs(musicTime) ?? toMs(rawDate) ?? toMs(rawPhoto._createdAt) ?? 0;
+
         return {
           id: rawPhoto._id,
           slug: rawPhoto.slug?.current || rawPhoto._id,
@@ -205,17 +291,12 @@ export default async function Home() {
             "Unknown Camera",
           tags: rawPhoto.tags,
           song: rawPhoto.song,
-          // Default on: only an explicit false hides the music block
-          showMusic: rawPhoto.showMusic !== false,
+          showMusic,
           date: formattedDate,
           rawDate: rawDate,
-          // True UTC instant for the music lookup. A manually set Studio date
-          // is already real UTC; EXIF wall-clock times need conversion.
-          musicTime: rawPhoto.date
-            ? new Date(rawPhoto.date).toISOString()
-            : rawDate
-              ? utcFromWallTime(rawDate, exifOffset, PHOTO_TZ)
-              : null,
+          musicTime,
+          track,
+          sortMs,
           width: dimensions?.width,
           height: dimensions?.height,
           aspectRatio: dimensions?.aspectRatio,
@@ -228,7 +309,10 @@ export default async function Home() {
         };
       }),
     )
-  ).filter(Boolean);
+  )
+    .filter(Boolean)
+    // Newest taken-date at the top, earliest at the bottom.
+    .sort((a, b) => b.sortMs - a.sortMs);
 
   return (
     <div className="min-h-screen flex flex-col">
